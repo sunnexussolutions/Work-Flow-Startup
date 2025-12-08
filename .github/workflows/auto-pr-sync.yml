@@ -3,11 +3,17 @@ name: 🔄 Auto PR Synchronization
 on:
   push:
     branches:
-      # Verify/adjust this pattern to match your branch naming convention
+      # CRITICAL: This pattern matches branches like 'Updates/Gopinadh'
       - 'Updates/**' 
       
 jobs:
   sync-pr:
+    # Grants necessary permissions for the bot to write to the repository 
+    # and create/update Pull Requests.
+    permissions:
+      contents: write 
+      pull-requests: write 
+      
     runs-on: ubuntu-latest
 
     steps:
@@ -16,12 +22,19 @@ jobs:
         with:
           fetch-depth: 0 
 
+      # Configure the Git user identity for the bot to authenticate 
+      # API calls correctly.
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
       - name: Create or Update Pull Request (The Key Step)
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref_name }} 
-          # Change 'main' to 'master' if your primary branch is named master
+          # Assuming 'main' is your protected target branch
           base: main 
           title: 'Daily Update Sync: ${{ github.ref_name }}'
           draft: true
