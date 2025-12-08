@@ -3,7 +3,6 @@ name: 🔄 Auto PR Synchronization
 on:
   push:
     branches:
-      # Ensures activation for your branch naming
       - 'Updates/**' 
       
 jobs:
@@ -18,27 +17,27 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          # Ensure full history is available for comparison
           fetch-depth: 0 
 
       - name: Configure Git User
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github01[bot]@users.noreply.github.com"
           
-      - name: Create or Update Pull Request
+      - name: Create or Update Pull Request (Force Rebase Strategy)
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Explicitly set the head (source) branch name
           head: ${{ github.ref_name }} 
-          # Explicitly set the base (target) branch name
           base: main 
           title: 'Auto PR: ${{ github.ref_name }}'
           draft: true
           
-          # We are removing sync/commit-message to simplify the operation
-
+          # 🌟 KEY FIX: Use the rebase-and-update strategy 🌟
+          # This ensures the feature branch is updated against main before PR creation, 
+          # which should resolve the "branches are identical" issue.
+          strategy: rebase-and-update 
+          
           body: |
             This PR was automatically created/synchronized by the Sunnexus Bot.
             Reviewer: @Vuppala-Gopinadh @BharathkumarK19
