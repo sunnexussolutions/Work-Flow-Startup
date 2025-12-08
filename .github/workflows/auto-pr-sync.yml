@@ -3,13 +3,11 @@ name: 🔄 Auto PR Synchronization
 on:
   push:
     branches:
-      # CRITICAL: This pattern matches branches like 'Updates/Gopinadh'
+      # Ensures activation for your branch naming
       - 'Updates/**' 
       
 jobs:
   sync-pr:
-    # Grants necessary permissions for the bot to write to the repository 
-    # and create/update Pull Requests.
     permissions:
       contents: write 
       pull-requests: write 
@@ -20,25 +18,27 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
+          # Ensure full history is available for comparison
           fetch-depth: 0 
 
-      # Configure the Git user identity for the bot to authenticate 
-      # API calls correctly.
       - name: Configure Git User
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-      - name: Create or Update Pull Request (The Key Step)
+      - name: Create or Update Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref_name }} 
-          # Assuming 'main' is your protected target branch
+          # Explicitly set the head (source) branch name
+          head: ${{ github.ref_name }} 
+          # Explicitly set the base (target) branch name
           base: main 
-          title: 'Daily Update Sync: ${{ github.ref_name }}'
+          title: 'Auto PR: ${{ github.ref_name }}'
           draft: true
+          
+          # We are removing sync/commit-message to simplify the operation
+
           body: |
-            This PR was automatically created/synchronized by the Sunnexus Bot after a push to **${{ github.ref_name }}**.
-            
-            Please ensure all checks pass and the assigned Code Owner (Contributor) approves the merge.
+            This PR was automatically created/synchronized by the Sunnexus Bot.
+            Reviewer: @Vuppala-Gopinadh @BharathkumarK19
