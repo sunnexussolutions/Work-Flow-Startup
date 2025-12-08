@@ -1,14 +1,44 @@
-name: 🔄 TEST PARSING SUCCESS
+name: 🔄 Auto PR Synchronization
 
 on:
   push:
     branches:
+      # CRITICAL: This pattern matches branches like 'Updates/Gopinadh'
       - 'Updates/**' 
       
 jobs:
-  test-sync:
+  sync-pr:
+    # Grants necessary permissions for the bot to write to the repository 
+    # and create/update Pull Requests.
+    permissions:
+      contents: write 
+      pull-requests: write 
+      
     runs-on: ubuntu-latest
 
     steps:
-      - name: Success Check
-        run: echo "Workflow started successfully."
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      # Configure the Git user identity for the bot to authenticate 
+      # API calls correctly.
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+      - name: Create or Update Pull Request (The Key Step)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }} 
+          # Assuming 'main' is your protected target branch
+          base: main 
+          title: 'Daily Update Sync: ${{ github.ref_name }}'
+          draft: true
+          body: |
+            This PR was automatically created/synchronized by the Sunnexus Bot after a push to **${{ github.ref_name }}**.
+            
+            Please ensure all checks pass and the assigned Code Owner (Contributor) approves the merge.
