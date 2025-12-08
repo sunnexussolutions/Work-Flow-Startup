@@ -1,0 +1,31 @@
+name: 🔄 Auto PR Synchronization
+
+on:
+  push:
+    branches:
+      # Verify/adjust this pattern to match your branch naming convention
+      - 'Updates/**' 
+      
+jobs:
+  sync-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Create or Update Pull Request (The Key Step)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }} 
+          # Change 'main' to 'master' if your primary branch is named master
+          base: main 
+          title: 'Daily Update Sync: ${{ github.ref_name }}'
+          draft: true
+          body: |
+            This PR was automatically created/synchronized by the Sunnexus Bot after a push to **${{ github.ref_name }}**.
+            
+            Please ensure all checks pass and the assigned Code Owner (Contributor) approves the merge.
