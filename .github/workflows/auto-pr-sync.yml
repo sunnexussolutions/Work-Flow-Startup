@@ -1,4 +1,4 @@
-name: 🔄 Auto PR Synchronization
+name: 🔄 Auto PR Synchronization (CLI)
 
 on:
   push:
@@ -6,38 +6,29 @@ on:
       - 'Updates/**' 
       
 jobs:
-  sync-pr:
-    permissions:
-      contents: write 
-      pull-requests: write 
-      
+  create-pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Critical for PR creation
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
-
-      - name: Configure Git User
+        
+      # The GitHub CLI is pre-installed in GitHub Actions environments
+      - name: Create or Update Pull Request via CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github01[bot]@users.noreply.github.com"
+          PR_TITLE="Auto PR: ${{ github.ref_name }}"
+          PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
           
-      - name: Create or Update Pull Request (Force Rebase Strategy)
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          head: ${{ github.ref_name }} 
-          base: main 
-          title: 'Auto PR: ${{ github.ref_name }}'
-          draft: true
-          
-          # 🌟 KEY FIX: Use the rebase-and-update strategy 🌟
-          # This ensures the feature branch is updated against main before PR creation, 
-          # which should resolve the "branches are identical" issue.
-          strategy: rebase-and-update 
-          
-          body: |
-            This PR was automatically created/synchronized by the Sunnexus Bot.
-            Reviewer: @Vuppala-Gopinadh @BharathkumarK19
+          # This command creates the PR if one doesn't exist.
+          # If a PR does exist for the source branch, it will update it.
+          gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --head "${{ github.ref_name }}" \
+            --base "main" \
+            --draft
