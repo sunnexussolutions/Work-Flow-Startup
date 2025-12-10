@@ -19,17 +19,9 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Create or Update Pull Request via CLI
-        env:
-          # 🌟 CRITICAL FIX: Use the custom high-authority token 🌟
-          GITHUB_TOKEN: ${{ secrets.PR_CREATOR_TOKEN }}
-        run: |
-          PR_TITLE="Auto PR: ${{ github.ref_name }}"
-          PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
-          
-          # The GitHub CLI command
-          gh pr create \
-            --title "$PR_TITLE" \
-            --body "$PR_BODY" \
-            --head "${{ github.ref_name }}" \
-            --base "main" \
-            --draft
+            env:
+              # 🌟 CRITICAL FIX: Use the custom high-authority PAT 🌟
+              GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+            run: |
+              PR_TITLE="Auto PR: ${{ github.ref_name }}"
+              # ... rest of the CLI command
