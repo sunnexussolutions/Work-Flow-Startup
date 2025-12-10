@@ -46,4 +46,5 @@ jobs:
             --head "${{ github.ref_name }}" \
             --base "main" \
             --draft \
-            --fill
+            --fill  \
+            || true
