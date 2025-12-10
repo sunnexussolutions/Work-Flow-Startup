@@ -25,7 +25,7 @@ jobs:
         # The GitHub CLI tool requires the environment variable to be named GH_TOKEN.
         # This uses your high-authority Personal Access Token (PAT) stored as a secret.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_TITLE="Auto PR: ${{ github.ref_name }}"
           PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
