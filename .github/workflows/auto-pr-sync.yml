@@ -3,29 +3,36 @@ name: 🔄 Auto PR Synchronization (CLI)
 on:
   push:
     branches:
+      # This ensures the workflow runs whenever you push to a branch like 'Updates/Gopinadh' or 'Updates/Hari'
       - 'Updates/**' 
       
 jobs:
   create-pr:
     runs-on: ubuntu-latest
+    
+    # Declares the required permissions for the job runner
     permissions:
-      # Although we use a PAT, declaring these permissions is best practice
       contents: read
       pull-requests: write 
 
     steps:
       - name: Checkout Code
+        # Uses the default checkout action to get your code
         uses: actions/checkout@v4
         
       - name: Create or Update Pull Request via CLI
+        # 🌟 CRITICAL FIX 🌟
+        # The GitHub CLI tool requires the environment variable to be named GH_TOKEN.
+        # This uses your high-authority Personal Access Token (PAT) stored as a secret.
         env:
-          # 🌟 CRITICAL FIX: USE THE CUSTOM PAT FOR HIGH AUTHORITY 🌟
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           PR_TITLE="Auto PR: ${{ github.ref_name }}"
           PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
           
           # The GitHub CLI command
+          # The '--draft' flag creates the PR in draft mode. Remove it if you want it ready for review immediately.
+          # The CLI handles the comparison and creation logic, bypassing previous errors.
           gh pr create \
             --title "$PR_TITLE" \
             --body "$PR_BODY" \
