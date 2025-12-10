@@ -1,30 +1,49 @@
-name: 🔄 Auto PR Synchronization (CLI)
+name: 🔄 Auto PR Synchronization (FINAL)
 
 on:
   push:
     branches:
-      - 'Updates/**'
+      - 'Updates/**' 
+      
 jobs:
   create-pr:
     runs-on: ubuntu-latest
+    
+    # Required permissions for the job runner
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write 
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Full History
+        uses: actions/checkout@v4
+        with:
+          # 🌟 CRITICAL FIX: Fetch all history (fetch-depth: 0) to allow 'gh pr create' 
+          # to correctly compare 'origin/main' against the feature branch.
+          fetch-depth: 0 
+
       - name: Verify gh is installed
         run: gh --version
-      - name: Create Pull Request
+
+      - name: Create or Update Pull Request
+        # 🌟 CRITICAL FIX: Uses the custom PAT and correct variable name (GH_TOKEN) 🌟
         env:
           GH_TOKEN: ${{ secrets.PR_CREATOR_TOKEN }}
         run: |
-                  echo "Token length: ${#GH_TOKEN}"
-                  gh auth status
-                  # FINAL FIX: Removed the unsupported '--reuse-existing' flag.
-                  gh pr create \
-                    --title "Auto PR: ${{ github.ref_name }}" \
-                    --body "Auto PR created by bot" \
-                    --head "${{ github.ref_name }}" \
-                    --base "main" \
-                    --draft \
-                    --fill # This flag is often sufficient to trigger an update/sync on an existing PR
+          echo "Token length: ${#GH_TOKEN}"
+          gh auth status
+          
+          PR_TITLE="Auto PR: ${{ github.ref_name }}"
+          PR_BODY="This Pull Request was created automatically to sync changes from ${{ github.ref_name }} into main. Review and approve."
+          
+          # gh pr create command:
+          # --fill: Automatically uses the latest commit message/changes for the body/title (prevents "unknown revision" error).
+          # --draft: Creates the PR as a draft, requiring explicit action to mark as ready.
+          # We no longer need --reuse-existing as the CLI handles it implicitly with --fill.
+          gh pr create \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
+            --head "${{ github.ref_name }}" \
+            --base "main" \
+            --draft \
+            --fill
