@@ -33,3 +33,5 @@ jobs:
             --head "${{ github.ref_name }}" \
             --base "main" \
             --draft
+            --reuse-existing \  # <--- CRITICAL: Tells CLI to use the existing PR
+            --fill
