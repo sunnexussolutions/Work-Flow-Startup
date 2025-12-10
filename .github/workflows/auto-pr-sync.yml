@@ -18,14 +18,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PR_CREATOR_TOKEN }}
         run: |
-          echo "Token length: ${#GH_TOKEN}"
-          gh auth status
-          # This command must be perfectly formatted to include all flags
-          gh pr create \
-            --title "Auto PR: ${{ github.ref_name }}" \
-            --body "Auto PR created by bot" \
-            --head "${{ github.ref_name }}" \
-            --base "main" \
-            --draft \
-            --reuse-existing \
-            --fill
+                  echo "Token length: ${#GH_TOKEN}"
+                  gh auth status
+                  # FINAL FIX: Removed the unsupported '--reuse-existing' flag.
+                  gh pr create \
+                    --title "Auto PR: ${{ github.ref_name }}" \
+                    --body "Auto PR created by bot" \
+                    --head "${{ github.ref_name }}" \
+                    --base "main" \
+                    --draft \
+                    --fill # This flag is often sufficient to trigger an update/sync on an existing PR
