@@ -8,11 +8,11 @@ on:
 jobs:
   create-pr:
     runs-on: ubuntu-latest
-    
-    # 🌟 CRITICAL FIX: Explicitly request 'write' scope for pull-requests 🌟
     permissions:
+      # These permissions are still necessary for the job runner, 
+      # but the PR creation authority comes from the ENV token below.
       contents: read
-      pull-requests: write # This MUST be explicitly requested
+      pull-requests: write 
 
     steps:
       - name: Checkout Code
@@ -20,7 +20,8 @@ jobs:
         
       - name: Create or Update Pull Request via CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 🌟 CRITICAL FIX: Use the custom high-authority token 🌟
+          GITHUB_TOKEN: ${{ secrets.PR_CREATOR_TOKEN }}
         run: |
           PR_TITLE="Auto PR: ${{ github.ref_name }}"
           PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
