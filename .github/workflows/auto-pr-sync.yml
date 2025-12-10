@@ -4,34 +4,28 @@ on:
   push:
     branches:
       - 'Updates/**'
-
 jobs:
   create-pr:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       pull-requests: write
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Verify gh is installed
         run: gh --version
-
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ secrets.PR_CREATOR_TOKEN }}
         run: |
           echo "Token length: ${#GH_TOKEN}"
-
           gh auth status
-
+          # This command must be perfectly formatted to include all flags
           gh pr create \
             --title "Auto PR: ${{ github.ref_name }}" \
             --body "Auto PR created by bot" \
             --head "${{ github.ref_name }}" \
             --base "main" \
-            --draft
-            --reuse-existing \  # <--- CRITICAL: Tells CLI to use the existing PR
+            --draft \
+            --reuse-existing \
             --fill
