@@ -10,21 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write 
+      pull-requests: write # Critical for PR creation
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         
+      # The GitHub CLI is pre-installed in GitHub Actions environments
       - name: Create or Update Pull Request via CLI
         env:
-          # 🌟 CRITICAL FIX: Ensure the correct variable name (GH_TOKEN) is used 🌟
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_TITLE="Auto PR: ${{ github.ref_name }}"
           PR_BODY="This PR was automatically created by the Sunnexus Bot. Reviewer: @Vuppala-Gopinadh @BharathkumarK19"
           
-          # The GitHub CLI command
+          # This command creates the PR if one doesn't exist.
+          # If a PR does exist for the source branch, it will update it.
           gh pr create \
             --title "$PR_TITLE" \
             --body "$PR_BODY" \
